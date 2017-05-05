@@ -1,0 +1,10 @@
+Subject: [[% subject_prefix %]] Commande illégale
+
+[% INCLUDE header.tt %]
+
+Votre commande n'a pas pu être interpretée correctement.
+
+[% INCLUDE usage.tt %]
+
+---- Votre message :
+[% contents %]
