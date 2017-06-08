@@ -52,16 +52,22 @@ BEGIN {
 
     push @INC, $ENV{GOAT_DIR};
 }
+
 use Tournament;
 use Getopt::Long;
+use Pod::Usage;
+use GoatLib;
 
 
 # Interpret command line
-my ($testing, $param_file, $help);
+my ($testing, $param_file, $param_final_date, $help);
 GetOptions(
     'help' => \$help,
     'file=s' => \$param_file,
+    'date=s' => \$param_final_date,
 ) or die pod2usage();
+
+die pod2usage(-verbose=>2) if defined $help;
 die "No tournament file specified. Use -f <file>.\n" unless defined $param_file;
 
 
@@ -70,6 +76,18 @@ my $Tournament = Tournament->load($param_file);
 my $round_num = ($Tournament->round_number || 0) + 1;
 print "Creating round $round_num\n";
 my $round = Round->new($round_num);
+
+# make date or get from opt
+my $final_date;
+if (defined $param_final_date) {
+    $final_date = parse_datestr($param_final_date);
+    die "Wrong date format $param_final_date." unless defined $final_date;
+} else {
+    $final_date = time + 30 * 24 * 3600; # one month in the future
+}
+
+
+$round->final_date($final_date);
 $Tournament->add_round($round_num, $round);
 $Tournament->save($param_file);
 
